@@ -1,15 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast"; // ✅ Import toast and Toaster
 import weatherImage from "../assets/weather.png";
 
 function Weather() {
     const [city, setCity] = useState("");
     const [weather, setWeather] = useState(null);
     const [showMore, setShowMore] = useState(false);
-    const [error, setError] = useState("");
 
     const getWeather = async () => {
-        if (!city.trim()) return;
+        if (!city.trim()) return toast.error("Please enter a city name!");
 
         try {
             const res = await axios.get(
@@ -17,11 +17,10 @@ function Weather() {
             );
             setWeather(res.data);
             setShowMore(false);
-            setError("");
+            toast.success("Weather data loaded successfully! 🌤️");
         } catch (err) {
-            setError("City not found.");
             setWeather(null);
-            setTimeout(() => setError(""), 3000);
+            toast.error("City not found. Please try again! ❌");
         }
     };
 
@@ -33,14 +32,8 @@ function Weather() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-300 to-indigo-600 flex flex-col items-center justify-center p-4 relative">
-            {error && (
-                <div className="absolute top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-800 border border-blue-700 text-white text-2xl px-6 py-8 rounded-xl shadow-lg animate-bounce z-20">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z" />
-                    </svg>
-                    <span className="font-semibold">{error}</span>
-                </div>
-            )}
+            {/* ✅ Toast Container */}
+            <Toaster position="top-center" reverseOrder={false} />
 
             <h1 className="text-4xl font-extrabold text-white mb-8 drop-shadow-lg tracking-wide flex items-center gap-3">
                 <span>
@@ -53,7 +46,6 @@ function Weather() {
                 Weather App
             </h1>
 
-            
             <div className="flex gap-2 mb-6">
                 <input
                     type="text"
@@ -74,14 +66,20 @@ function Weather() {
             {/* Weather Card */}
             {weather && (
                 <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md text-center border border-gray-200">
-                    <h2 className="text-2xl font-semibold mb-2">{weather.name}, {weather.sys.country}</h2>
+                    <h2 className="text-2xl font-semibold mb-2">
+                        {weather.name}, {weather.sys.country}
+                    </h2>
                     <img
                         src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
                         alt="weather icon"
                         className="mx-auto"
                     />
-                    <p className="text-lg font-medium capitalize">{weather.weather[0].description}</p>
-                    <p className="text-4xl font-bold text-indigo-700">{weather.main.temp}°C</p>
+                    <p className="text-lg font-medium capitalize">
+                        {weather.weather[0].description}
+                    </p>
+                    <p className="text-4xl font-bold text-indigo-700">
+                        {weather.main.temp}°C
+                    </p>
 
                     <button
                         onClick={() => setShowMore(!showMore)}
